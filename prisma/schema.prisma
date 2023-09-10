@@ -1,0 +1,63 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum AdoptionStatus {
+  Available
+  Adopted
+  Fostered
+}
+
+enum PetType {
+  Dog
+  Cat
+  Other
+}
+
+model Pet {
+  id     String @id
+  name           String
+  adoptionStatus AdoptionStatus
+  type           PetType
+  height         Float
+  weight         Float
+  picture        String
+  color          String
+  bio            String?
+  hypoallergenic Boolean
+  dietery        String?
+  breed          String
+  ownerId        String?
+  owner          User?          @relation(fields: [ownerId], references: [id])
+
+  Like Like[]
+}
+
+model User {
+  id     String @id
+  email        String  @unique
+  password     String
+  firstName    String
+  lastName     String
+  phoneNumber  String?
+  bio          String? @db.Text
+  refreshToken String? @db.Text
+  isAdmin      Boolean @default(false)
+  Like         Like[]
+  Pet          Pet[]
+}
+
+model Like {
+  id     Int  @id @default(autoincrement())
+  user   User @relation(fields: [userId], references: [id])
+  pet    Pet  @relation(fields: [petId], references: [id])
+  userId String
+  petId  String
+
+  @@unique([userId, petId])
+}
